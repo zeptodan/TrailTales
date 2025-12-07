@@ -785,10 +785,28 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 @media (max-width: 408px) {
   .logo { gap: 10px; }
-  .logo span { font-size: 16px; }
-  .logo-img { height: 30px; }
-  .carousel-container { transform: translateY(-20px); }
+  .logo span { font-size: 12px; }
+  .logo-img { height: 25px; }
+  .carousel-container { transform: translateY(-50px); }
   .desktop-nav-rail { display: none; }
+  .btn-login {
+    transform: scale(0.8);
+    font-size: 0.5rem;
+  }
+  .btn-signup {
+    transform: scale(0.8);
+    font-size: 0.5rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .btn-login {
+    transform: scale(0.7);
+  }
+  .btn-signup {
+    font-size: 0.2rem;
+    transform: scale(0.7);
+  }
 }
 
 /* --- NEW ADD FRIEND STYLES --- */
