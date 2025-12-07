@@ -5,10 +5,10 @@ async function login(req,res){
     const username = req.body.username
     const password = req.body.password
     if (!username){
-        res.status(400).json({msg: "No username"})
+        return res.status(400).json({msg: "No username"})
     }
     if (!password){
-        res.status(400).json({msg: "No password"})
+        return res.status(400).json({msg: "No password"})
     }
     try {
         const user = await User.findOne({username: username})
@@ -30,18 +30,24 @@ async function signup(req,res){
     const username = req.body.username
     const password = req.body.password
     if (!username){
-        res.status(400).json({msg: "No username"})
+        return res.status(400).json({msg: "No username"})
     }
     if (!password){
-        res.status(400).json({msg: "No password"})
+        return res.status(400).json({msg: "No password"})
     }
     try {
+        // Check if user already exists
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ msg: "User already exists" });
+        }
+
         await User.create({username, password})
+        return res.status(200).json({msg: "User created"})
     } catch (error) {
-        console.log(error)
-        return res.status(400).json({msg: "Error creating user"})
+        console.error("Signup Error:", error)
+        return res.status(400).json({msg: "Error creating user", error: error.message})
     }
-    return res.status(200).json({msg: "User created"})
 }
 async function logout(req,res){
     res.clearCookie("token",{httpOnly: true,sameSite: "none",expiresIn:"30d"})
