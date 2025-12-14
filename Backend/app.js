@@ -9,7 +9,7 @@ import "dotenv/config"
 const app = express()
 
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: ["http://localhost:5173", "http://localhost:5174", "https://trail-tales-chi.vercel.app"],
     credentials: true
 }));
 
