@@ -154,16 +154,8 @@ const Sidebar = ({
 
         <div className="modal-stats" style={{ marginTop: "20px", marginBottom: "20px" }}>
           <div className="stat-box">
-            <strong>0</strong>
-            <span>Trips</span>
-          </div>
-          <div className="stat-box">
             <strong>{stats?.pins || user?.pinsCount || 0}</strong>
             <span>Pins</span>
-          </div>
-          <div className="stat-box">
-            <strong>{stats?.countries || user?.countriesCount || 0}</strong>
-            <span>Countries</span>
           </div>
         </div>
 

@@ -49,16 +49,8 @@ const ProfileModal = ({ isOpen, onClose, user, setUser, handleToast }) => {
         </div>
         <div className="modal-stats">
           <div className="stat-box">
-            <strong>0</strong>
-            <span>Trips</span>
-          </div>
-          <div className="stat-box">
             <strong>{user?.pinsCount || 0}</strong>
             <span>Pins</span>
-          </div>
-          <div className="stat-box">
-            <strong>{user?.countriesCount || 0}</strong>
-            <span>Countries</span>
           </div>
         </div>
         <div className="modal-bio">

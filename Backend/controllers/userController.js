@@ -10,15 +10,12 @@ export const getProfile = async (req, res) => {
 
     // Calculate stats
     const pinsCount = await Memory.countDocuments({ userId: req.user.userID });
-    const countries = await Memory.distinct("country", { userId: req.user.userID, country: { $ne: null } });
-    const countriesCount = countries.length;
 
     // Return user object with stats appended (or separate)
     // We can append it to the user object if we convert it to object first
     const userWithStats = {
       ...user.toObject(),
-      pinsCount,
-      countriesCount
+      pinsCount
     };
 
     res.status(200).json({ user: userWithStats });
