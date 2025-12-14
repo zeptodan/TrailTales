@@ -102,6 +102,11 @@ const Dashboard = ({
     setSelectedFriend(friend);
     switchView("chat");
     
+    // Optimistically update friends list to remove badge
+    setFriends(prevFriends => prevFriends.map(f => 
+        (f.id === friend.id || f._id === friend.id) ? { ...f, unreadCount: 0 } : f
+    ));
+    
     // Mark messages as read when opening chat
     try {
         await api.post("/messages/read", { friendId: friend._id || friend.id });

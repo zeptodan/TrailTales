@@ -30,7 +30,8 @@ const Sidebar = ({
                         id: f._id,
                         name: f.username,
                         status: f.bio || "Just joined",
-                        avatarColor: f.avatarColor || "#f28b50"
+                        avatarColor: f.avatarColor || "#f28b50",
+                        unreadCount: f.unreadCount || 0
                     })));
                 }
 
@@ -255,10 +256,28 @@ const Sidebar = ({
                 <div className="friend-left">
                   <div
                     className="friend-avatar"
-                    style={{ background: friend.avatarColor }}
+                    style={{ background: friend.avatarColor, position: 'relative' }}
                     aria-hidden="true"
                   >
                     {friend.name.charAt(0).toUpperCase()}
+                    {friend.unreadCount > 0 && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-5px',
+                        right: '-5px',
+                        backgroundColor: '#ff4444',
+                        color: 'white',
+                        borderRadius: '10px',
+                        padding: '2px 5px',
+                        fontSize: '0.7rem',
+                        fontWeight: 'bold',
+                        minWidth: '18px',
+                        textAlign: 'center',
+                        border: '2px solid white'
+                      }}>
+                        {friend.unreadCount > 5 ? "5+" : friend.unreadCount}
+                      </span>
+                    )}
                   </div>
                   <div className="friend-details">
                     <p>{friend.name}</p>

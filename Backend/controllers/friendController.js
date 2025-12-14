@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
+import Message from "../models/Message.js";
 
 // Send a friend request
 export const sendFriendRequest = async (req, res) => {
@@ -118,7 +119,19 @@ export const getFriends = async (req, res) => {
     const userId = req.user.userID;
     const user = await User.findById(userId).populate("friends", "username email avatarColor bio");
     
-    res.status(200).json({ friends: user.friends });
+    const friendsWithCounts = await Promise.all(user.friends.map(async (friend) => {
+      const unreadCount = await Message.countDocuments({
+        sender: friend._id,
+        receiver: userId,
+        read: false
+      });
+      return {
+        ...friend.toObject(),
+        unreadCount
+      };
+    }));
+    
+    res.status(200).json({ friends: friendsWithCounts });
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }
