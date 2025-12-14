@@ -2,6 +2,7 @@ import React, { useState, Suspense, lazy, useEffect } from "react";
 import MapComponent from "./MapComponent";
 import Sidebar from "./Sidebar";
 import api from "../api/axios";
+import "./NotificationStyles.css";
 
 const MemoryModal = lazy(() => import("./MemoryModal"));
 const MemoryViewModal = lazy(() => import("./MemoryViewModal"));
@@ -28,6 +29,10 @@ const Dashboard = ({
   const [memories, setMemories] = useState([]);
   const [friendsMemories, setFriendsMemories] = useState([]);
   const [showFriendsMemories, setShowFriendsMemories] = useState(false);
+  
+  // Notification Counts
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   
   // Delete Confirmation State
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -56,27 +61,32 @@ const Dashboard = ({
     };
   }, [user]);
 
-  // Poll for friends memories when toggle is active
+  // Poll for friends memories and notifications
   useEffect(() => {
     let interval;
-    if (user && showFriendsMemories) {
-        const fetchFriendsMemories = async () => {
+    if (user) {
+        const fetchData = async () => {
             try {
-                const res = await api.get("/memories/friends");
-                // Only update if data changed to avoid unnecessary re-renders? 
-                // React state updates are cheap if reference is same, but here it's new array.
-                // For now, just update.
-                setFriendsMemories(res.data.memories);
+                // Fetch notifications (always)
+                const notifRes = await api.get("/notifications/unread-counts");
+                setUnreadMessagesCount(notifRes.data.unreadMessages);
+                setPendingRequestsCount(notifRes.data.pendingRequests);
+
+                // Fetch friends memories (only if toggle is on)
+                if (showFriendsMemories) {
+                    const res = await api.get("/memories/friends");
+                    setFriendsMemories(res.data.memories);
+                }
             } catch (error) {
-                console.error("Polling friends memories failed", error);
+                console.error("Polling failed", error);
             }
         };
 
-        // Initial fetch immediately when toggled on
-        fetchFriendsMemories();
+        // Initial fetch
+        fetchData();
 
         // Poll every 5 seconds
-        interval = setInterval(fetchFriendsMemories, 5000);
+        interval = setInterval(fetchData, 5000);
     }
     return () => {
         if (interval) clearInterval(interval);
@@ -87,10 +97,21 @@ const Dashboard = ({
     setActiveView(viewName);
   };
 
-  const openChatWith = (friend) => {
+  const openChatWith = async (friend) => {
     setChatTitle("Chat with " + friend.name);
     setSelectedFriend(friend);
     switchView("chat");
+    
+    // Mark messages as read when opening chat
+    try {
+        await api.post("/messages/read", { friendId: friend._id || friend.id });
+        // Optimistically update count (though polling will fix it eventually)
+        // We don't know exactly how many unread from THIS friend, but we can trigger a refetch
+        const notifRes = await api.get("/notifications/unread-counts");
+        setUnreadMessagesCount(notifRes.data.unreadMessages);
+    } catch (error) {
+        console.error("Failed to mark messages as read", error);
+    }
   };
 
   const handleOpenMemoryModal = async (lat, lng) => {
@@ -284,6 +305,7 @@ const Dashboard = ({
               className={`desk-nav-item ${activeView === view ? "active" : ""}`}
               onClick={() => switchView(view)}
               data-tooltip={view.charAt(0).toUpperCase() + view.slice(1)}
+              style={{ position: 'relative' }}
             >
               <i
                 className={`ph ${
@@ -298,6 +320,12 @@ const Dashboard = ({
                     : "ph-user"
                 }`}
               ></i>
+              {view === "friends" && pendingRequestsCount > 0 && (
+                <span className="notification-dot"></span>
+              )}
+              {view === "chat" && unreadMessagesCount > 0 && (
+                <span className="notification-dot"></span>
+              )}
             </button>
           ))}
         </div>
@@ -345,6 +373,7 @@ const Dashboard = ({
             key={view}
             className={`nav-item ${activeView === view ? "active" : ""}`}
             onClick={() => switchView(view)}
+            style={{ position: 'relative' }}
           >
             <i
               className={`ph ${
@@ -359,6 +388,12 @@ const Dashboard = ({
                   : "ph-user"
               }`}
             ></i>
+            {view === "friends" && pendingRequestsCount > 0 && (
+              <span className="notification-dot" style={{top: '5px', right: '25%'}}></span>
+            )}
+            {view === "chat" && unreadMessagesCount > 0 && (
+              <span className="notification-dot" style={{top: '5px', right: '25%'}}></span>
+            )}
             <span>{view.charAt(0).toUpperCase() + view.slice(1)}</span>
           </button>
         ))}

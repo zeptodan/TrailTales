@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const CalendarView = ({ memories, onDateClick, onSave }) => {
+const CalendarView = ({ memories, friendsMemories = [], onDateClick, onSave }) => {
   const containerRef = useRef(null);
   const [selectedDateMemories, setSelectedDateMemories] = useState(null);
   const [viewingMemory, setViewingMemory] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isEditingStory, setIsEditingStory] = useState(false);
   const [editedStory, setEditedStory] = useState("");
+
+  // Combine memories with a flag
+  const allMemories = [
+    ...memories.map(m => ({ ...m, isFriend: false })),
+    ...friendsMemories.map(m => ({ ...m, isFriend: true }))
+  ];
 
   const handleMemoryClick = (memory) => {
     setViewingMemory(memory);
@@ -75,7 +81,7 @@ const CalendarView = ({ memories, onDateClick, onSave }) => {
   };
 
   const getMemoriesForDate = (dateStr) => {
-    return memories.filter(m => {
+    return allMemories.filter(m => {
         if (!m.date) return false;
         // If it's an exact match (YYYY-MM-DD)
         if (m.date === dateStr) return true;
@@ -87,7 +93,7 @@ const CalendarView = ({ memories, onDateClick, onSave }) => {
             if (isNaN(d.getTime())) return false;
             const dStr = d.toISOString().split('T')[0];
             return dStr === dateStr;
-        } catch (e) {
+        } catch {
             return false;
         }
     });
@@ -126,24 +132,34 @@ const CalendarView = ({ memories, onDateClick, onSave }) => {
                   // Format date as YYYY-MM-DD to match input type="date"
                   const dateStr = `${year}-${String(monthDate.getMonth() + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
                   const dayMemories = getMemoriesForDate(dateStr);
-                  const hasImages = dayMemories.some(m => m.images && m.images.length > 0);
-                  const coverImage = hasImages ? dayMemories.find(m => m.images.length > 0).images[0] : null;
+                  // const hasImages = dayMemories.some(m => m.images && m.images.length > 0);
+                  
+                  // Prioritize own images for cover, then friends
+                  const ownMemoryWithImage = dayMemories.find(m => !m.isFriend && m.images && m.images.length > 0);
+                  const friendMemoryWithImage = dayMemories.find(m => m.isFriend && m.images && m.images.length > 0);
+                  const coverImage = ownMemoryWithImage ? ownMemoryWithImage.images[0] : (friendMemoryWithImage ? friendMemoryWithImage.images[0] : null);
+                  
+                  const hasFriendMemory = dayMemories.some(m => m.isFriend);
+                  const hasOwnMemory = dayMemories.some(m => !m.isFriend);
 
                   return (
                     <div 
                       key={dayNum} 
-                      className={`day-cell ${dayMemories.length > 0 ? 'has-memory' : ''}`}
+                      className={`day-cell ${dayMemories.length > 0 ? 'has-memory' : ''} ${hasFriendMemory && !hasOwnMemory ? 'friend-memory-only' : ''}`}
                       onClick={() => {
                         if (dayMemories.length > 0) {
                           setSelectedDateMemories(dayMemories);
                           onDateClick(dayMemories);
                         }
                       }}
-                      style={coverImage ? { backgroundImage: `url(${coverImage})` } : {}}
+                      style={coverImage ? { 
+                          backgroundImage: `url(${coverImage})`,
+                          border: friendMemoryWithImage && !ownMemoryWithImage ? '2px solid #3b82f6' : undefined
+                      } : {}}
                     >
                       <span className="day-number">{dayNum}</span>
                       {dayMemories.length > 0 && !coverImage && (
-                        <div className="memory-dot"></div>
+                        <div className="memory-dot" style={{ backgroundColor: hasFriendMemory && !hasOwnMemory ? '#3b82f6' : undefined }}></div>
                       )}
                       {dayMemories.length > 0 && (
                         <div className="memory-count-badge">{dayMemories.length}</div>
@@ -167,10 +183,11 @@ const CalendarView = ({ memories, onDateClick, onSave }) => {
           </div>
           <div className="entries-list">
             {selectedDateMemories.map((memory) => (
-              <div key={memory.id} className="entry-item" onClick={() => handleMemoryClick(memory)}>
+              <div key={memory.id || memory._id} className={`entry-item ${memory.isFriend ? 'friend-entry' : ''}`} onClick={() => handleMemoryClick(memory)}>
                 <div className="entry-info">
                   <h4 className="entry-date">
                     {new Date(memory.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    {memory.isFriend && <span style={{fontSize: '0.8em', color: '#3b82f6', marginLeft: '8px'}}>(Friend)</span>}
                     {memory.id && !isNaN(new Date(memory.id).getTime()) && (
                       <> at {new Date(memory.id).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</>
                     )}

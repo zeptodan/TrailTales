@@ -2,8 +2,14 @@ import User from "../models/User.js"
 import bcrypt from "bcryptjs"
 
 async function login(req,res){
-    console.log("Login Request Body:", req.body);
     const username = req.body.username
+    // Log attempt without sensitive data
+    console.log({
+        timestamp: new Date().toISOString(),
+        action: "login_attempt",
+        username: username
+    });
+
     const password = req.body.password
     if (!username){
         return res.status(400).json({msg: "No username"})
@@ -18,11 +24,21 @@ async function login(req,res){
         });
         
         if(!user){
-            console.log("User not found for:", username);
+            console.log({
+                timestamp: new Date().toISOString(),
+                action: "login_failed",
+                reason: "user_not_found",
+                username: username
+            });
             return res.status(400).json({msg: "User does not exist"})
         }
         if (!(await bcrypt.compare(password,user.password))){
-            console.log("Incorrect password for:", username);
+            console.log({
+                timestamp: new Date().toISOString(),
+                action: "login_failed",
+                reason: "incorrect_password",
+                username: username
+            });
             return res.status(401).json({msg: "Incorrect password"})
         }
         const token = user.createJWT()
@@ -31,7 +47,12 @@ async function login(req,res){
         const isProduction = process.env.NODE_ENV === 'production';
         const isSecure = isProduction || req.secure || req.headers['x-forwarded-proto'] === 'https';
         
-        console.log("Login Successful. Secure:", isSecure, "Env:", process.env.NODE_ENV);
+        console.log({
+            timestamp: new Date().toISOString(),
+            action: "login_success",
+            username: username,
+            secure: isSecure
+        });
 
         res.cookie("token",token,{
             httpOnly: true,
@@ -47,8 +68,14 @@ async function login(req,res){
 }
 
 async function signup(req,res){
-    console.log("Signup Request Body:", req.body);
     const { username, email, password } = req.body;
+    // Log attempt without sensitive data
+    console.log({
+        timestamp: new Date().toISOString(),
+        action: "signup_attempt",
+        username: username,
+        email: email
+    });
     
     if (!username || !email || !password){
         return res.status(400).json({msg: "Please provide all fields"})
@@ -58,7 +85,12 @@ async function signup(req,res){
         // Check if user already exists
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
-            console.log("User already exists:", username, email);
+            console.log({
+                timestamp: new Date().toISOString(),
+                action: "signup_failed",
+                reason: "user_exists",
+                username: username
+            });
             return res.status(400).json({ msg: "User with this username or email already exists" });
         }
 
@@ -68,7 +100,12 @@ async function signup(req,res){
         const isProduction = process.env.NODE_ENV === 'production';
         const isSecure = isProduction || req.secure || req.headers['x-forwarded-proto'] === 'https';
         
-        console.log("Signup Successful. Secure:", isSecure, "Env:", process.env.NODE_ENV);
+        console.log({
+            timestamp: new Date().toISOString(),
+            action: "signup_success",
+            username: username,
+            secure: isSecure
+        });
         
         res.cookie("token",token,{
             httpOnly: true,

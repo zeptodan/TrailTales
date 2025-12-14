@@ -105,7 +105,11 @@ const Sidebar = ({
               avatarColor: f.avatarColor || "#f28b50"
           })));
           
-          setFriendRequests(friendRequests.filter(r => r._id !== requestId));
+          const requestsRes = await api.get("/friends/requests");
+          setFriendRequests(requestsRes.data.requests);
+          
+          // Trigger notification update in Dashboard (via polling, but we can't force it here easily without prop)
+          // The polling in Dashboard will pick it up in max 5s.
       } catch (error) {
           handleToast("Error", "Failed to accept request", error.message);
       }
