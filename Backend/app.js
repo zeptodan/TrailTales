@@ -2,6 +2,7 @@ import express from "express";
 import userRouter from "./routes/userRouter.js";
 import friendRouter from "./routes/friendRouter.js";
 import messageRouter from "./routes/messageRouter.js";
+import notificationRouter from "./routes/notificationRouter.js";
 import cookieParser from "cookie-parser";
 import connect from "./db/connect.js";
 import cors from "cors";
@@ -50,6 +51,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api",userRouter)
 app.use("/api/friends", friendRouter);
 app.use("/api/messages", messageRouter);
+app.use("/api/notifications", notificationRouter);
 
 async function start(){
     try {
