@@ -307,7 +307,7 @@ const Dashboard = ({
         <Suspense fallback={<div className="loading-spinner">Loading Calendar...</div>}>
           <CalendarView 
             memories={memories} 
-            friendsMemories={showFriendsMemories ? friendsMemories : []}
+            friendsMemories={friendsMemories}
             onDateClick={(dateMemories) => {
               handleToast("Memories", `Found ${dateMemories.length} memories on this date`, "info");
             }}
