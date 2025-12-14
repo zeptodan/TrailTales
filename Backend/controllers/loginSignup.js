@@ -23,11 +23,13 @@ async function login(req,res){
             return res.status(401).json({msg: "Incorrect password"})
         }
         const token = user.createJWT()
-        // Use lax for localhost development
+        
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie("token",token,{
             httpOnly: true,
-            sameSite: "lax", 
-            secure: false, // Set to true in production with https
+            sameSite: isProduction ? "none" : "lax",
+            secure: isProduction,
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         })
         return res.status(200).json({msg: "User logged in", user})
@@ -54,10 +56,12 @@ async function signup(req,res){
         const user = await User.create({username, email, password})
         const token = user.createJWT()
         
+        const isProduction = process.env.NODE_ENV === 'production';
+        
         res.cookie("token",token,{
             httpOnly: true,
-            sameSite: "lax",
-            secure: false,
+            sameSite: isProduction ? "none" : "lax",
+            secure: isProduction,
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         })
         
@@ -69,10 +73,12 @@ async function signup(req,res){
 }
 
 async function logout(req,res){
+    const isProduction = process.env.NODE_ENV === 'production';
+
     res.clearCookie("token",{
         httpOnly: true,
-        sameSite: "lax",
-        secure: false
+        sameSite: isProduction ? "none" : "lax",
+        secure: isProduction
     })
     return res.status(200).json({msg: "User logged out"})
 }
