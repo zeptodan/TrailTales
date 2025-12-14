@@ -19,8 +19,8 @@ app.use(cors({
 }));
 
 // Handle preflight requests explicitly
-// In Express 5, '*' is not valid. Use '(.*)' to match all routes.
-app.options('(.*)', cors());
+// In Express 5, use a RegExp to match all routes for OPTIONS
+app.options(/.*/, cors());
 
 app.use(express.json())
 app.use(cookieParser())
