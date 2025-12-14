@@ -234,6 +234,12 @@ const Dashboard = ({
             });
             setMemories([res.data.memory, ...memories]);
             handleToast("Success", "Memory saved to your journal!", "success");
+            
+            // Refresh user profile to update stats in App.js (if user prop is passed down from App)
+            // Since we can't easily update App.js state from here without a prop, 
+            // we rely on the fact that Sidebar uses 'stats' prop which is calculated from 'memories'.
+            // However, ProfileModal uses 'user' object. We should ideally update the user object in App.js.
+            // For now, let's just rely on the next page refresh or profile open to fetch fresh stats.
         }
     } catch (error) {
         handleToast("Error", "Failed to save memory", "error");

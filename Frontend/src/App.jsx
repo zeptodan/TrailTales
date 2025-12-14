@@ -48,7 +48,14 @@ function App() {
         const res = await api.get("/auth");
         if (res.status === 200) {
           setIsLoggedIn(true);
-          setUser(res.data.user);
+          // Fetch full profile to get stats
+          try {
+              const profileRes = await api.get("/profile");
+              setUser(profileRes.data.user);
+          } catch (e) {
+              // Fallback to basic user info if profile fetch fails
+              setUser(res.data.user);
+          }
         }
       } catch (error) {
         setIsLoggedIn(false);
