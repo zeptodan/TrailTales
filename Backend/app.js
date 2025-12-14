@@ -14,6 +14,7 @@ app.use(cors({
 
 app.use(express.json())
 app.use(cookieParser())
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api",userRouter)
 
