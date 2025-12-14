@@ -54,3 +54,25 @@ export const getMessages = async (req, res) => {
         res.status(500).json({ msg: "Server error" });
     }
 };
+
+export const markMessagesRead = async (req, res) => {
+    try {
+        const { friendId } = req.body;
+        const userId = req.user.userID;
+
+        if (!friendId) {
+            return res.status(400).json({ msg: "Friend ID is required" });
+        }
+
+        // Update all messages where sender is friend and receiver is current user
+        await Message.updateMany(
+            { sender: friendId, receiver: userId, read: false },
+            { $set: { read: true } }
+        );
+
+        res.status(200).json({ msg: "Messages marked as read" });
+    } catch (error) {
+        console.error("Error marking messages read:", error);
+        res.status(500).json({ msg: "Server error" });
+    }
+};
