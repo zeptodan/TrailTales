@@ -5,7 +5,6 @@ const Chat = ({ user, selectedFriend }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const chatBoxRef = useRef(null);
-  const isFirstLoad = useRef(true);
 
   // Initial fetch and polling
   useEffect(() => {
@@ -28,21 +27,13 @@ const Chat = ({ user, selectedFriend }) => {
     return () => {
         isMounted = false;
         clearInterval(interval);
-        isFirstLoad.current = true; // Reset on unmount/friend change
     };
   }, [selectedFriend]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
     if (chatBoxRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = chatBoxRef.current;
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-      
-      // Scroll if it's the first load OR if user is already near bottom
-      if (isFirstLoad.current || isNearBottom) {
-          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-          isFirstLoad.current = false;
-      }
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -80,11 +71,7 @@ const Chat = ({ user, selectedFriend }) => {
       
       <div className="chat-messages" id="chat-box" ref={chatBoxRef} style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
         {messages.map((msg, index) => {
-          // Robust comparison for sender ID
-          const senderId = msg.sender._id || msg.sender;
-          const myId = user._id || user.id;
-          const isMe = String(senderId) === String(myId);
-          
+          const isMe = msg.sender._id === user._id || msg.sender === user._id;
           return (
             <div 
               key={msg._id || index} 
