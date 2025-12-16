@@ -10,7 +10,7 @@ import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
 import ToastContainer from "./components/ToastContainer";
 
-// Lazy Load Dashboard
+// Lazy Loading Dashboard
 const Dashboard = lazy(() => import("./components/Dashboard"));
 
 // Images
