@@ -41,6 +41,20 @@ function App() {
     }
   }, [isDashboardOpen]);
 
+    // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isProfileDropdownOpen && !event.target.closest('.profile-menu-container')) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileDropdownOpen]);
+
   // Check Auth Status on Mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -52,12 +66,12 @@ function App() {
           try {
               const profileRes = await api.get("/profile");
               setUser(profileRes.data.user);
-          } catch (e) {
+          } catch {
               // Fallback to basic user info if profile fetch fails
               setUser(res.data.user);
           }
         }
-      } catch (error) {
+      } catch {
         setIsLoggedIn(false);
         setUser(null);
       }
@@ -82,7 +96,7 @@ function App() {
       setProfileDropdownOpen(false);
       handleToast("Success", "Logged out successfully", "success");
     } catch (error) {
-      handleToast("Error", "Logout failed", "error");
+      handleToast("Error", "Logout failed", error.message);
     }
   };
 
