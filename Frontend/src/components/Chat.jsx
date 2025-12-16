@@ -85,17 +85,26 @@ const Chat = ({ user, selectedFriend }) => {
     <div className="chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <h4 id="chat-header-title">Chat with {selectedFriend.name}</h4>
       
-      <div className="chat-messages" id="chat-box" ref={chatBoxRef} onScroll={handleScroll} style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+      <div 
+        className="chat-messages" 
+        id="chat-box" 
+        ref={chatBoxRef} 
+        onScroll={handleScroll}
+        style={{ flex: 1, overflowY: 'auto', padding: '10px' }}
+      >
         {messages.map((msg, index) => {
-          const isMe = msg.sender._id === user._id || msg.sender === user._id;
+          const senderId = msg.sender?._id || msg.sender;
+          const currentUserId = user?._id || user?.id;
+          const isMe = String(senderId) === String(currentUserId);
+          
           return (
             <div 
               key={msg._id || index} 
               className={`message ${isMe ? 'sent' : 'received'}`}
               style={{
                 alignSelf: isMe ? 'flex-end' : 'flex-start',
-                background: isMe ? '#f28b50' : '#e0e0e0',
-                color: isMe ? 'white' : 'black',
+                backgroundColor: isMe ? '#f28b50' : '#2a2f3d',
+                color: '#fff',
                 padding: '8px 12px',
                 borderRadius: '12px',
                 marginBottom: '8px',
