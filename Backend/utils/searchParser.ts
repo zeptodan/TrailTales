@@ -71,6 +71,7 @@ class Lexer {
         while (this.pos < this.input.length) {
             const char = this.input[this.pos];
 
+            // to detect whitespaces
             if (/\s/.test(char)) {
                 this.pos++;
                 continue;
@@ -87,7 +88,8 @@ class Lexer {
                 continue;
             }
 
-            if (/[a-zA-Z0-9_]/.test(char)) {
+            // to define what constitutes a "Word" in your language.
+            if (/[a-zA-Z0-9_#]/.test(char)) {
                 this.tokens.push(new Token('WORD', this.readWord()));
                 continue;
             }
@@ -112,7 +114,7 @@ class Lexer {
 
     readWord() {
         let word = '';
-        while (this.pos < this.input.length && /[a-zA-Z0-9_]/.test(this.input[this.pos])) {
+        while (this.pos < this.input.length && /[a-zA-Z0-9_#]/.test(this.input[this.pos])) {
             word += this.input[this.pos];
             this.pos++;
         }

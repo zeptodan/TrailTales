@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login,logout,signup,auth } from "../controllers/loginSignup.js";
-import { getAllMemories, createMemory, getMemory, updateMemory, deleteMemory, getPublicMemories, getFriendsMemories } from "../controllers/memoryController.js";
+import { getAllMemories, createMemory, getMemory, updateMemory, deleteMemory, getPublicMemories, getFriendsMemories, searchMemories } from "../controllers/memoryController.js";
 import { getProfile, updateProfile, addFriend, getFriends, fixUserData } from "../controllers/userController.js";
 import authorization from "../middleware/auth.js";
 import multer from "multer";
@@ -23,6 +23,7 @@ userRouter.route("/memories")
 
 userRouter.route("/memories/public").get(getPublicMemories); // Public route, maybe optional auth?
 userRouter.route("/memories/friends").get(authorization, getFriendsMemories);
+userRouter.route("/memories/search").get(authorization, searchMemories);
 
 userRouter.route("/memories/:id")
     .get(authorization, getMemory)
