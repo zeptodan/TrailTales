@@ -7,13 +7,20 @@ import { MEMORY_CONFIG } from "../config/constants.js";
 export const searchMemories = async (req: Request, res: Response) => {
     try {
         const { q } = req.query;
-        console.log("Search Memories called with query:", q);
         if (!q) {
             return res.status(400).json({ msg: "Query parameter 'q' is required" });
         }
 
+        console.log(`Searching memories for user ${(req.user as any)?.userID} with query: ${q}`);
+
         // Use the Little Language Parser
-        const ast = parseSearchQuery(q as string);
+        let ast;
+        try {
+            ast = parseSearchQuery(q as string);
+        } catch (e) {
+            console.error("Parser Error:", e);
+            return res.status(400).json({ msg: "Invalid search query format" });
+        }
         
         const query: any = { userId: (req.user as any).userID }; // Default to searching own memories
         const orConditions: any[] = [];
@@ -24,17 +31,18 @@ export const searchMemories = async (req: Request, res: Response) => {
                     query.tags = node.value;
                 } else if (node.field === 'date') {
                     // Simple date match (starts with)
-                    // In a real app, this would be more complex range query
-                    // Assuming date is stored as ISO string or similar
+                    query.date = { $regex: `^${node.value}` };
                 } else if (node.field === 'visibility') {
                     if (MEMORY_CONFIG.VISIBILITY_OPTIONS.includes(node.value)) {
                         query.visibility = node.value;
                     }
                 }
             } else if (node.type === 'TEXT') {
-                // Search in title or story
-                orConditions.push({ title: { $regex: node.text, $options: 'i' } });
-                orConditions.push({ story: { $regex: node.text, $options: 'i' } });
+                // Search in title or description
+                // Escape regex special characters
+                const escapedText = node.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                orConditions.push({ title: { $regex: escapedText, $options: 'i' } });
+                orConditions.push({ description: { $regex: escapedText, $options: 'i' } });
             }
         });
 
@@ -42,11 +50,13 @@ export const searchMemories = async (req: Request, res: Response) => {
             query.$or = orConditions;
         }
 
+        console.log("Mongo Query:", JSON.stringify(query, null, 2));
+
         const memories = await Memory.find(query);
         res.status(200).json({ memories });
 
     } catch (error) {
-        console.error("Search Error:", error);
+        console.error("Search Memories Error:", error);
         res.status(500).json({ msg: (error as any).message });
     }
 };
@@ -146,7 +156,6 @@ export const createMemory = async (req: Request, res: Response) => {
 export const getMemory = async (req: Request, res: Response) => {
   try {
     const { id: memoryID } = req.params;
-    console.log("Get Memory called with ID:", memoryID);
     const memory = await Memory.findOne({ _id: memoryID, userId: (req.user as any).userID });
     if (!memory) {
       return res.status(404).json({ msg: `No memory with id: ${memoryID}` });
