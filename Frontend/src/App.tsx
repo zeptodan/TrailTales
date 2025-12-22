@@ -133,7 +133,7 @@ function App() {
           setUser={setUser}
         />
 
-        <LandingSection setDashboardOpen={setDashboardOpen} />
+        <LandingSection setDashboardOpen={setDashboardOpen} user={user} />
       </section>
 
       <Suspense fallback={<div className="loading-screen">Loading Dashboard...</div>}>

@@ -154,6 +154,8 @@ const CalendarView = ({ memories, friendsMemories = [], onDateClick, onSave }: a
                       }}
                       style={coverImage ? { 
                           backgroundImage: `url(${coverImage})`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'center center',
                           border: friendMemoryWithImage && !ownMemoryWithImage ? '2px solid #3b82f6' : undefined
                       } : {}}
                     >

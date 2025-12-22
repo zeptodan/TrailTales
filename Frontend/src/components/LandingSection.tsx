@@ -1,8 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import api from "../api/axios";
 
-const LandingSection = ({ setDashboardOpen }: any) => {
+const LandingSection = ({ setDashboardOpen, user }: any) => {
   const [currentCard, setCurrentCard] = useState(0);
   const [typingText, setTypingText] = useState("");
+  const [userImages, setUserImages] = useState<string[]>([]);
+
+  // Memoize bubble styles to prevent re-calculation on every render
+  const bubbles = useMemo(() => {
+    return userImages.slice(0, 30).map((img, index) => {
+      const isTop = index % 2 === 0;
+      const randomLeft = Math.random() * 90 + 5; // 5% to 95%
+      const randomDelay = Math.random() * 5;
+      const randomDuration = 10 + Math.random() * 10;
+      const sway = (Math.random() - 0.5) * 60 + "px";
+
+      const style: any = {
+        left: `${randomLeft}%`,
+        animationName: isTop ? "bubbleFloatUp" : "bubbleFloatDown",
+        animationDuration: `${randomDuration}s`,
+        animationDelay: `${randomDelay}s`,
+        animationIterationCount: "infinite",
+        animationTimingFunction: "ease-in-out",
+        "--sway": sway,
+        [isTop ? "top" : "bottom"]: "0px",
+      };
+
+      return { img, style, key: index };
+    });
+  }, [userImages]);
 
   const cards = [
     {
@@ -18,6 +44,19 @@ const LandingSection = ({ setDashboardOpen }: any) => {
       img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop",
     },
   ];
+
+  useEffect(() => {
+    if (user) {
+      api.get("/memories")
+        .then((res) => {
+          // Assuming res.data.memories is the array. 
+          // Based on typical controller: res.status(200).json({ memories, count: ... })
+          const images = res.data.memories?.flatMap((m: any) => m.images || []) || [];
+          setUserImages(images);
+        })
+        .catch((err) => console.error("Failed to fetch memories for bubbles", err));
+    }
+  }, [user]);
 
   useEffect(() => {
     const word = "TrailTales";
@@ -82,6 +121,15 @@ const LandingSection = ({ setDashboardOpen }: any) => {
       </div>
 
       <div className="carousel-container">
+        {bubbles.map((bubble) => (
+          <img 
+            key={bubble.key} 
+            src={bubble.img} 
+            className="bubble-image" 
+            style={bubble.style} 
+            alt="" 
+          />
+        ))}
         <button id="prevBtn" className="nav-arrow" onClick={prevCard} aria-label="Previous image">
           <i className="ph ph-caret-left"></i>
         </button>
