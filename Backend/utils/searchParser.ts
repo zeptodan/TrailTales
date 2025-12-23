@@ -108,7 +108,9 @@ class Lexer {
             str += this.input[this.pos];
             this.pos++;
         }
-        this.pos++; // Skip closing quote
+        if (this.pos < this.input.length) {
+            this.pos++; // Skip closing quote
+        }
         return str;
     }
 
