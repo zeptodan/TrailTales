@@ -2,6 +2,12 @@
 
 TrailTales is a full-stack web application designed to help users document, share, and explore memorable journeys and experiences. The platform features user authentication, memory sharing, friend requests, chat, notifications, and an interactive map/calendar view.
 
+## Screenshots
+
+<img width="1811" height="913" alt="image" src="https://github.com/user-attachments/assets/6a04d31a-8eb5-43c1-8ffd-5435c6e5e496" />
+<img width="1809" height="898" alt="image" src="https://github.com/user-attachments/assets/4a0456dd-34c3-478e-a45a-e03a5d9b2221" />
+
+
 ## Table of Contents
 - [Features](#features)
 - [Tech Stack](#tech-stack)
