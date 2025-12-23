@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import api from "../api/axios";
 
 const MapComponent = ({ onMapClick, isDashboardOpen, activeView, onOpenMemory, onMemoryClick, memories, user, showFriendsMemories, setShowFriendsMemories }: any) => {
@@ -142,7 +141,6 @@ const MapComponent = ({ onMapClick, isDashboardOpen, activeView, onOpenMemory, o
       zoomControl: false,
       minZoom: 3,
       maxZoom: 18,
-      worldCopyJump: true,
     }).setView([40.4168, -3.7038], 6);
 
     // Option 1: MapTiler with 2x scaling for larger labels
@@ -325,31 +323,28 @@ const MapComponent = ({ onMapClick, isDashboardOpen, activeView, onOpenMemory, o
     const isLittleLanguage = searchQuery.includes("tag:") || searchQuery.includes("mood:") || searchQuery.includes('"');
 
     try {
-        // 1. Only search memories if it IS a Little Language query
-        if (isLittleLanguage) {
-            try {
-                console.log("Searching memories with:", searchQuery);
-                const memoryRes = await api.get(`/memories/search?q=${encodeURIComponent(searchQuery)}`);
-                if (memoryRes.data && memoryRes.data.memories) {
-                    setFilteredMemories(memoryRes.data.memories);
-                    console.log("Found memories:", memoryRes.data.memories.length);
-                }
-            } catch (memError) {
-                console.error("Memory search failed", memError);
+        // 1. Always try to search memories (Little Language OR Text Search)
+        try {
+            console.log("Searching memories with:", searchQuery);
+            const memoryRes = await api.get(`/memories/search?q=${encodeURIComponent(searchQuery)}`);
+            if (memoryRes.data && memoryRes.data.memories) {
+                setFilteredMemories(memoryRes.data.memories);
+                console.log("Found memories:", memoryRes.data.memories.length);
             }
-            // Clear location results when searching memories
-            setSearchResults([]);
-        } else {
-            // 2. If it is NOT a specific Little Language query, ONLY search for locations (Geocoding)
-            // This prevents filtering out memories when user just wants to find a place
-            setFilteredMemories(null); // Reset memory filter
-            
+        } catch (memError) {
+            console.error("Memory search failed", memError);
+        }
+
+        // 2. If it is NOT a specific Little Language query, ALSO search for locations
+        if (!isLittleLanguage) {
             const apiKey = "v4vwdmxWVeQdVFt5xcEl";
             const response = await fetch(
                 `https://api.maptiler.com/geocoding/${encodeURIComponent(searchQuery)}.json?key=${apiKey}&limit=5`
             );
             const data = await response.json();
             setSearchResults(data.features || []);
+        } else {
+            setSearchResults([]);
         }
 
     } catch (error: any) {

@@ -1,16 +1,17 @@
 import { useState, useEffect, Suspense, lazy } from "react";
+import "@phosphor-icons/web/regular";
 import "./App.css";
 import api from "./api/axios";
 
 // Components
 import Navbar from "./components/Navbar";
 import LandingSection from "./components/LandingSection";
+import AuthModal from "./components/AuthModal";
+import ProfileModal from "./components/ProfileModal";
 import ToastContainer from "./components/ToastContainer";
 
 // Lazy Load Dashboard
 const Dashboard = lazy(() => import("./components/Dashboard"));
-const AuthModal = lazy(() => import("./components/AuthModal"));
-const ProfileModal = lazy(() => import("./components/ProfileModal"));
 
 // Images
 import bookLogo from "./assets/book.png";
@@ -114,28 +115,26 @@ function App() {
           user={user}
         />
 
-        <Suspense fallback={null}>
-          <ProfileModal
-            isOpen={isProfileModalOpen}
-            onClose={() => setProfileModalOpen(false)}
-            user={user}
-            setUser={setUser}
-            handleToast={handleToast}
-          />
+        <ProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+          user={user}
+          setUser={setUser}
+          handleToast={handleToast}
+        />
 
-          <AuthModal
-            isOpen={isAuthModalOpen}
-            onClose={() => setAuthModalOpen(false)}
-            authMode={authMode}
-            setAuthMode={setAuthMode}
-            logo={bookLogo}
-            handleToast={handleToast}
-            setIsLoggedIn={setIsLoggedIn}
-            setUser={setUser}
-          />
-        </Suspense>
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          authMode={authMode}
+          setAuthMode={setAuthMode}
+          logo={bookLogo}
+          handleToast={handleToast}
+          setIsLoggedIn={setIsLoggedIn}
+          setUser={setUser}
+        />
 
-        <LandingSection setDashboardOpen={setDashboardOpen} user={user} />
+        <LandingSection setDashboardOpen={setDashboardOpen} />
       </section>
 
       <Suspense fallback={<div className="loading-screen">Loading Dashboard...</div>}>

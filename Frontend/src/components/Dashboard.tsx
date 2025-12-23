@@ -3,7 +3,6 @@ import MapComponent from "./MapComponent";
 import Sidebar from "./Sidebar";
 import api from "../api/axios";
 import "./NotificationStyles.css";
-import "./Dashboard.css";
 
 const MemoryModal = lazy(() => import("./MemoryModal"));
 const MemoryViewModal = lazy(() => import("./MemoryViewModal"));
