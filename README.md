@@ -1,52 +1,123 @@
 # TrailTales
 
-A brief description of your project and its purpose.
-
----
+TrailTales is a full-stack web application designed to help users document, share, and explore memorable journeys and experiences. The platform features user authentication, memory sharing, friend requests, chat, notifications, and an interactive map/calendar view.
 
 ## Table of Contents
 - [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Screenshots](#screenshots)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Setup Instructions](#setup-instructions)
+- [Environment Variables](#environment-variables)
+- [Scripts](#scripts)
+- [API Overview](#api-overview)
 - [Contributing](#contributing)
 - [License](#license)
 
----
-
 ## Features
-- Feature 1
-- Feature 2
-- Feature 3
+- User authentication (signup/login)
+- Create, view, and delete memories (with images)
+- Friend requests and management
+- Real-time chat between friends
+- Notifications for friend requests, messages, and memory events
+- Interactive map and calendar views for memories
+- Profile management
 
----
+## Tech Stack
+- **Frontend:** React, TypeScript, Vite, Axios, CSS
+- **Backend:** Node.js, Express, TypeScript, MongoDB
+- **Other:** Cloudinary (image uploads), JWT (auth), Socket.io (real-time chat)
 
-## Installation
-```bash
-# Clone the repository
-git clone https://github.com/zeptodan/TrailTales.git
-# Install dependencies
-npm install
+## Project Structure
+```
+TrailTales/
+├── Backend/
+│   ├── app.ts
+│   ├── package.json
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── db/
+│   ├── utils/
+│   └── ...
+├── Frontend/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── components/
+│   │   └── ...
+│   ├── public/
+│   ├── package.json
+│   └── ...
+└── TrailTales User Manual.md
 ```
 
----
+## Setup Instructions
 
-## Usage
-```bash
-npm start
+### Prerequisites
+- Node.js (v16+ recommended)
+- npm or yarn
+- MongoDB instance (local or cloud)
+- Cloudinary account (for image uploads)
+
+### Backend Setup
+1. Navigate to the Backend folder:
+   ```sh
+   cd Backend
+   ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Create a `.env` file (see [Environment Variables](#environment-variables))
+4. Start the backend server:
+   ```sh
+   npm run dev
+   ```
+
+### Frontend Setup
+1. Navigate to the Frontend folder:
+   ```sh
+   cd Frontend
+   ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Start the frontend development server:
+   ```sh
+   npm run dev
+   ```
+
+## Environment Variables
+Create a `.env` file in the `Backend/` directory with the following variables:
+```
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
----
+## Scripts
+### Backend
+- `npm run dev` — Start backend in development mode
+- `npm run build` — Build backend TypeScript
+- `npm start` — Start backend from build output
 
-## Screenshots
-![Screenshot](path/to/screenshot.png)
+### Frontend
+- `npm run dev` — Start frontend in development mode
+- `npm run build` — Build frontend for production
+- `npm run preview` — Preview production build
 
----
+## API Overview
+The backend exposes RESTful endpoints for authentication, memory management, friends, chat, and notifications. See the `routes/` and `controllers/` folders in `Backend/` for details.
 
 ## Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
----
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
 
 ## License
-[MIT](LICENSE)
+This project is licensed under the MIT License.
