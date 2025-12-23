@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/axios";
 import Chat from "./Chat";
 import "./FriendRequests.css";
@@ -11,11 +11,12 @@ const Sidebar = ({
   openChatWith,
   handleToast,
   user,
-  selectedFriend
-}) => {
+  selectedFriend,
+  stats
+}: any) => {
   const [showAddFriendInput, setShowAddFriendInput] = useState(false);
   const [newFriendName, setNewFriendName] = useState("");
-  const [friendRequests, setFriendRequests] = useState([]);
+  const [friendRequests, setFriendRequests] = useState<any[]>([]);
 
   // Fetch friends and requests on mount or user change
   useEffect(() => {
@@ -26,11 +27,12 @@ const Sidebar = ({
                 // Fetch Friends
                 const friendsRes = await api.get("/friends");
                 if (isMounted) {
-                    setFriends(friendsRes.data.friends.map(f => ({
+                    setFriends(friendsRes.data.friends.map((f: any) => ({
                         id: f._id,
                         name: f.username,
                         status: f.bio || "Just joined",
-                        avatarColor: f.avatarColor || "#f28b50"
+                        avatarColor: f.avatarColor || "#f28b50",
+                        unreadCount: f.unreadCount || 0
                     })));
                 }
 
@@ -39,7 +41,7 @@ const Sidebar = ({
                 if (isMounted) {
                     setFriendRequests(requestsRes.data.requests);
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to fetch friends data", error);
             }
         };
@@ -72,7 +74,7 @@ const Sidebar = ({
         const users = searchRes.data.users;
         
         // Case-insensitive match or pick the first one if exact match fails
-        const targetUser = users.find(u => u.username.toLowerCase() === trimmedName.toLowerCase()) || users[0];
+        const targetUser = users.find((u: any) => u.username.toLowerCase() === trimmedName.toLowerCase()) || users[0];
         
         if (!targetUser) {
              handleToast("Error", "User not found", "error");
@@ -85,20 +87,20 @@ const Sidebar = ({
         handleToast("Success", `Friend request sent to ${targetUser.username}!`, "success");
         setNewFriendName("");
         setShowAddFriendInput(false);
-    } catch (error) {
+    } catch (error: any) {
         const msg = error.response?.data?.msg || "Failed to send request";
         handleToast("Error", msg, "error");
     }
   };
 
-  const handleAcceptRequest = async (requestId) => {
+  const handleAcceptRequest = async (requestId: any) => {
       try {
           await api.post("/friends/accept", { requestId });
           handleToast("Success", "Friend request accepted!", "success");
           
           // Refresh data
           const friendsRes = await api.get("/friends");
-          setFriends(friendsRes.data.friends.map(f => ({
+          setFriends(friendsRes.data.friends.map((f: any) => ({
               id: f._id,
               name: f.username,
               status: f.bio || "Just joined",
@@ -110,17 +112,17 @@ const Sidebar = ({
           
           // Trigger notification update in Dashboard (via polling, but we can't force it here easily without prop)
           // The polling in Dashboard will pick it up in max 5s.
-      } catch (error) {
+      } catch (error: any) {
           handleToast("Error", "Failed to accept request", error.message);
       }
   };
 
-  const handleRejectRequest = async (requestId) => {
+  const handleRejectRequest = async (requestId: any) => {
       try {
           await api.post("/friends/reject", { requestId });
           handleToast("Info", "Friend request rejected", "info");
           setFriendRequests(friendRequests.filter(r => r._id !== requestId));
-      } catch (error) {
+      } catch (error: any) {
           handleToast("Error", "Failed to reject request", error.message);
       }
   };
@@ -152,16 +154,8 @@ const Sidebar = ({
 
         <div className="modal-stats" style={{ marginTop: "20px", marginBottom: "20px" }}>
           <div className="stat-box">
-            <strong>0</strong>
-            <span>Trips</span>
-          </div>
-          <div className="stat-box">
-            <strong>0</strong>
+            <strong>{stats?.pins || user?.pinsCount || 0}</strong>
             <span>Pins</span>
-          </div>
-          <div className="stat-box">
-            <strong>0</strong>
-            <span>Countries</span>
           </div>
         </div>
 
@@ -211,8 +205,8 @@ const Sidebar = ({
               type="text"
               placeholder="Enter friend's name..."
               value={newFriendName}
-              onChange={(e) => setNewFriendName(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleAddFriend()}
+              onChange={(e: any) => setNewFriendName(e.target.value)}
+              onKeyPress={(e: any) => e.key === "Enter" && handleAddFriend()}
               aria-label="Friend's name"
             />
             <button onClick={handleAddFriend} aria-label="Confirm add friend">
@@ -250,15 +244,33 @@ const Sidebar = ({
           {friends.length === 0 ? (
             <p className="no-friends-msg">No friends yet. Add one!</p>
           ) : (
-            friends.map((friend) => (
+            friends.map((friend: any) => (
               <div key={friend.id} className="friend-item">
                 <div className="friend-left">
                   <div
                     className="friend-avatar"
-                    style={{ background: friend.avatarColor }}
+                    style={{ background: friend.avatarColor, position: 'relative' }}
                     aria-hidden="true"
                   >
                     {friend.name.charAt(0).toUpperCase()}
+                    {friend.unreadCount > 0 && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-5px',
+                        right: '-5px',
+                        backgroundColor: '#ff4444',
+                        color: 'white',
+                        borderRadius: '10px',
+                        padding: '2px 5px',
+                        fontSize: '0.7rem',
+                        fontWeight: 'bold',
+                        minWidth: '18px',
+                        textAlign: 'center',
+                        border: '2px solid white'
+                      }}>
+                        {friend.unreadCount > 5 ? "5+" : friend.unreadCount}
+                      </span>
+                    )}
                   </div>
                   <div className="friend-details">
                     <p>{friend.name}</p>
@@ -293,3 +305,4 @@ const Sidebar = ({
 };
 
 export default Sidebar;
+
