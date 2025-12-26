@@ -1,37 +1,24 @@
 import mongoose from "mongoose";
 
-/*
-  Message Schema
-  Represents a private message exchanged between two users
-*/
-const MessageSchema = new mongoose.Schema(
-  {
+const MessageSchema = new mongoose.Schema({
     sender: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",        // Reference to the user who sent the message
-      required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
-
     receiver: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",        // Reference to the user who receives the message
-      required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
-
     content: {
-      type: String,
-      required: true,     // Actual message text
+        type: String,
+        required: true
     },
-
     read: {
-      type: Boolean,
-      default: false,     // Indicates whether the message has been read
-    },
-  },
-  {
-    timestamps: true,     // Automatically adds createdAt & updatedAt fields
-  }
-);
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true });
 
-// Export Message model
 export default mongoose.model("Message", MessageSchema);

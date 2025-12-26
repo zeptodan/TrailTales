@@ -9,10 +9,10 @@ import AuthModal from "./components/AuthModal";
 import ProfileModal from "./components/ProfileModal";
 import ToastContainer from "./components/ToastContainer";
 
-// Lazy Loading Dashboard
+// Lazy Load Dashboard
 const Dashboard = lazy(() => import("./components/Dashboard"));
 
-// loading Images
+// Images
 import bookLogo from "./assets/book.png";
 
 function App() {
@@ -31,7 +31,7 @@ function App() {
   // Toasts
   const [toasts, setToasts] = useState<any[]>([]);
 
-  // -- EFFECTS --
+  // --- EFFECTS ---
   useEffect(() => {
     if (isDashboardOpen) {
       document.body.classList.add("dashboard-open");
@@ -65,7 +65,7 @@ function App() {
           try {
               const profileRes = await api.get("/profile");
               setUser(profileRes.data.user);
-          } catch (e) {
+          } catch {
               // Fallback to basic user info if profile fetch fails
               setUser(res.data.user);
           }
@@ -136,9 +136,7 @@ function App() {
         <LandingSection setDashboardOpen={setDashboardOpen} user={user} />
       </section>
 
-      <Suspense
-        fallback={<div className="loading-screen">Loading Dashboard...</div>}
-      >
+      <Suspense fallback={<div className="loading-screen">Loading Dashboard...</div>}>
         <Dashboard
           isDashboardOpen={isDashboardOpen}
           setDashboardOpen={setDashboardOpen}
@@ -155,3 +153,4 @@ function App() {
 }
 
 export default App;
+
